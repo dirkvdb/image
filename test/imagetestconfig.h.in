@@ -1,0 +1,6 @@
+#ifndef IMAGE_TEST_CONFIG_H
+#define IMAGE_TEST_CONFIG_H
+
+#define IMAGE_TEST_DATA_DIR "${IMAGE_TEST_DATA_DIR}"
+
+#endif

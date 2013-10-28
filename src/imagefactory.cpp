@@ -22,6 +22,7 @@
 #include "utils/log.h"
 #include "utils/stringoperations.h"
 #include "utils/fileoperations.h"
+#include "utils/readerfactory.h"
 
 #include "imageconfig.h"
 
@@ -37,6 +38,20 @@ using namespace utils;
 
 namespace image
 {
+
+template <typename LoaderType>
+static std::unique_ptr<Image> loadImage(utils::IReader& reader)
+{
+    LoaderType loader;
+    return loader.loadFromReader(reader);
+}
+
+template <typename LoaderType>
+static std::unique_ptr<Image> loadImageFromMemory(const std::vector<uint8_t>& data)
+{
+    LoaderType loader;
+    return loader.loadFromMemory(data);
+}
 
 static Type detectImageTypeFromUri(const std::string& uri)
 {
@@ -56,7 +71,31 @@ static Type detectImageTypeFromUri(const std::string& uri)
     throw std::runtime_error("Failed to detect file type from extenstion");
 }
 
-Image* Factory::createFromUri(const std::string& uri)
+std::unique_ptr<ILoadStore> Factory::createLoadStore(Type imageType)
+{
+    switch (imageType)
+    {
+    case Type::Jpeg:
+#ifdef HAVE_JPEG
+        return std::unique_ptr<ILoadStore>(new LoadStoreJpeg());
+#else
+        throw std::runtime_error("Library not compiled with jpeg support");
+#endif
+    case Type::Png:
+#ifdef HAVE_PNG
+        return std::unique_ptr<ILoadStore>(new LoadStorePng());
+#else
+        throw std::runtime_error("Library not compiled with png support");
+#endif
+
+    default:
+        assert(!"This is not possible");
+        throw std::runtime_error("Unexpected image type");
+        break;
+    }
+}
+
+std::unique_ptr<Image> Factory::createFromUri(const std::string& uri)
 {
     try
     {
@@ -70,29 +109,78 @@ Image* Factory::createFromUri(const std::string& uri)
     }
 }
 
-Image* Factory::createFromUri(const std::string& uri, Type imageType)
+std::unique_ptr<Image> Factory::createFromUri(const std::string& uri, Type imageType)
 {
+    std::unique_ptr<utils::IReader> reader(ReaderFactory::create(uri));
+    reader->open(uri);
+
     switch (imageType)
     {
     case Type::Jpeg:
 #ifdef HAVE_JPEG
-        return LoadStoreJpeg();
+        return loadImage<LoadStoreJpeg>(*reader);
 #else
         throw std::runtime_error("Library not compiled with jpeg support");
 #endif
     case Type::Png:
 #ifdef HAVE_PNG
+        return loadImage<LoadStorePng>(*reader);
 #else
         throw std::runtime_error("Library not compiled with png support");
 #endif
 
     default:
         assert(!"This is not possible");
+        throw std::runtime_error("Unexpected image type");
         break;
+    }
 }
 
-Image* Factory::createFromData(const std::vector<uint8_t>& data, Type imageType)
+std::unique_ptr<Image> Factory::createFromData(const std::vector<uint8_t>& data)
 {
+    // try to detect the image type from the provided data
+    
+#ifdef HAVE_JPEG
+    LoadStoreJpeg loadStoreJpeg;
+    if (loadStoreJpeg.isValidImageData(data))
+    {
+        return loadStoreJpeg.loadFromMemory(data);
+    }
+#endif
+
+#ifdef HAVE_PNG
+    LoadStorePng loadStorePng;
+    if (loadStorePng.isValidImageData(data))
+    {
+        return loadStorePng.loadFromMemory(data);
+    }
+#endif
+
+    throw std::runtime_error("Provided image data not supported");
+}
+
+std::unique_ptr<Image> Factory::createFromData(const std::vector<uint8_t>& data, Type imageType)
+{
+    switch (imageType)
+    {
+    case Type::Jpeg:
+#ifdef HAVE_JPEG
+        return loadImageFromMemory<LoadStoreJpeg>(data);
+#else
+        throw std::runtime_error("Library not compiled with jpeg support");
+#endif
+    case Type::Png:
+#ifdef HAVE_PNG
+        return loadImageFromMemory<LoadStorePng>(data);
+#else
+        throw std::runtime_error("Library not compiled with png support");
+#endif
+
+    default:
+        assert(!"This is not possible");
+        throw std::runtime_error("Unexpected image type");
+        break;
+    }
 }
 
 }

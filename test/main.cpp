@@ -1,4 +1,4 @@
-//    Copyright (C) 2014 Dirk Vanden Boer <dirk.vdb@gmail.com>
+//    Copyright (C) 2012 Dirk Vanden Boer <dirk.vdb@gmail.com>
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -14,37 +14,19 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef IMAGE_READER_FACTORY_H
-#define IMAGE_READER_FACTORY_H
+#include "gmock/gmock.h"
+#include <clocale>
 
-#include <string>
-#include <vector>
-#include <memory>
+using namespace testing;
 
-namespace image
+int main(int argc, char **argv)
 {
-
-enum class Type
-{
-    Jpeg,
-    Png
-};
-
-class Image;
-class ILoadStore;
-
-class Factory
-{
-public:
-    static std::unique_ptr<ILoadStore> createLoadStore(Type imageType);
-
-    static std::unique_ptr<Image> createFromUri(const std::string& uri);
-    static std::unique_ptr<Image> createFromUri(const std::string& uri, Type imageType);
+    if (!setlocale(LC_CTYPE, ""))
+    {
+        std::cerr << "Locale not specified. Check LANG, LC_CTYPE, LC_ALL" << std::endl;
+        return 1;
+    }
     
-    static std::unique_ptr<Image> createFromData(const std::vector<uint8_t>& data);
-    static std::unique_ptr<Image> createFromData(const std::vector<uint8_t>& data, Type imageType);
-};
-
+    InitGoogleMock(&argc, argv);
+    return RUN_ALL_TESTS();
 }
-
-#endif

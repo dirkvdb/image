@@ -17,6 +17,13 @@
 #ifndef IMAGE_LOAD_STORE_INTERFACE_H
 #define IMAGE_LOAD_STORE_INTERFACE_H
 
+#include "image/image.h"
+
+namespace utils
+{
+    class IReader;
+}
+
 namespace image
 {
 
@@ -25,12 +32,15 @@ class ILoadStore
 public:
     ~ILoadStore() {}
 
-    virtual void LoadFromUri(const std::string& uri) = 0;
-    virtual void LoadFromMemory(uint8_t* pData, uint64_t dataSize) = 0;
-    virtual void LoadFromMemory(const std::vector<uint8_t>& data) = 0;
+    // Check if the provided image data is supported by the loadstore
+    virtual bool isValidImageData(const std::vector<uint8_t>& data) = 0;
+
+    virtual std::unique_ptr<Image> loadFromReader(utils::IReader& reader) = 0;
+    virtual std::unique_ptr<Image> loadFromMemory(const uint8_t* pData, uint64_t dataSize) = 0;
+    virtual std::unique_ptr<Image> loadFromMemory(const std::vector<uint8_t>& data) = 0;
     
-    virtual void StoreToFile(const std::string& path) = 0;
-    virtual std::vector<uint8_t> StoreToMemory() = 0;
+    virtual void storeToFile(const Image& image, const std::string& path) = 0;
+    virtual std::vector<uint8_t> storeToMemory(const Image& image) = 0;
 };
 
 }

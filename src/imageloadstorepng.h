@@ -17,6 +17,11 @@
 #ifndef IMAGE_LOAD_STORE_PNG_H
 #define IMAGE_LOAD_STORE_PNG_H
 
+#include <memory>
+#include <vector>
+#include <string>
+
+#include "utils/readerinterface.h"
 #include "image/imageloadstoreinterface.h"
 
 namespace image
@@ -25,12 +30,26 @@ namespace image
 class LoadStorePng : public ILoadStore
 {
 public:
-    virtual void LoadFromUri(const std::string& uri) = 0;
-    virtual void LoadFromMemory(uint8_t* pData, uint64_t dataSize) = 0;
-    virtual void LoadFromMemory(const std::vector<uint8_t>& data) = 0;
+    LoadStorePng() = default;
+    virtual ~LoadStorePng();
+
+    LoadStorePng(const LoadStorePng&) = delete;
+    LoadStorePng& operator=(const LoadStorePng&) = delete;
     
-    virtual void StoreToFile(const std::string& path) = 0;
-    virtual std::vector<uint8_t> StoreToMemory() = 0;
+    virtual bool isValidImageData(const std::vector<uint8_t>& data) override;
+
+    virtual std::unique_ptr<Image> loadFromReader(utils::IReader& reader) override;
+    virtual std::unique_ptr<Image> loadFromMemory(const uint8_t* pData, uint64_t dataSize) override;
+    virtual std::unique_ptr<Image> loadFromMemory(const std::vector<uint8_t>& data) override;
+    
+    virtual void storeToFile(const Image& image, const std::string& path) override;
+    virtual std::vector<uint8_t> storeToMemory(const Image& image) override;
+    
+    // Png specific operation
+    // void setText(const std::string& key, const std::string& value);
+    
+private:
+    void verifyPNGSignature(const uint8_t* pData);
 };
 
 }
