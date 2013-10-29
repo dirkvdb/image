@@ -34,6 +34,7 @@ namespace test
 {
 
 static const std::string g_jpegTestData = IMAGE_TEST_DATA_DIR "/frog.jpg";
+static const std::string g_jpegSmallTestData = IMAGE_TEST_DATA_DIR "/frogsmall.jpg";
 static const std::string g_pngTestData = IMAGE_TEST_DATA_DIR "/frog.png";
 static const std::string g_corruptData = IMAGE_TEST_DATA_DIR "/corrupt.jpg";
 
@@ -104,26 +105,48 @@ TEST_F(ImageLoadingTest, loadCorruptJpeg)
     EXPECT_THROW(Factory::createFromUri(g_corruptData), std::runtime_error);
 }
 
-TEST_F(ImageLoadingTest, resizeNeirestNeightbor)
+TEST_F(ImageLoadingTest, resizeNeirestNeightborReduction)
 {
     auto jpegData = fileops::readFile(g_jpegTestData);
 
     auto image = Factory::createFromData(jpegData);
-    image->resize(1700, 1100, ResizeAlgorithm::NearestNeighbor);
+    image->resize(180, 120, ResizeAlgorithm::NearestNeighbor);
     
     auto jpegStore = Factory::createLoadStore(Type::Jpeg);
-    jpegStore->storeToFile(*image, "ResizedNearest" + g_testJpegFile);
+    jpegStore->storeToFile(*image, "ResizedNearestReduce" + g_testJpegFile);
 }
 
-TEST_F(ImageLoadingTest, resizeNeirestBilinear)
+TEST_F(ImageLoadingTest, resizeNeirestNeightborZoom)
+{
+    auto jpegData = fileops::readFile(g_jpegSmallTestData);
+
+    auto image = Factory::createFromData(jpegData);
+    image->resize(740, 500, ResizeAlgorithm::NearestNeighbor);
+    
+    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
+    jpegStore->storeToFile(*image, "ResizedNearestZoom" + g_testJpegFile);
+}
+
+TEST_F(ImageLoadingTest, resizeBilinearReduction)
 {
     auto jpegData = fileops::readFile(g_jpegTestData);
 
     auto image = Factory::createFromData(jpegData);
-    image->resize(1700, 1100, ResizeAlgorithm::Bilinear);
+    image->resize(180, 120, ResizeAlgorithm::Bilinear);
     
     auto jpegStore = Factory::createLoadStore(Type::Jpeg);
-    jpegStore->storeToFile(*image, "ResizedBilinear" + g_testJpegFile);
+    jpegStore->storeToFile(*image, "ResizedBilinearReduce" + g_testJpegFile);
+}
+
+TEST_F(ImageLoadingTest, resizeBilinearZoom)
+{
+    auto jpegData = fileops::readFile(g_jpegSmallTestData);
+
+    auto image = Factory::createFromData(jpegData);
+    image->resize(740, 500, ResizeAlgorithm::Bilinear);
+    
+    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
+    jpegStore->storeToFile(*image, "ResizedBilinearZoom" + g_testJpegFile);
 }
 
 }

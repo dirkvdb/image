@@ -17,8 +17,6 @@
 #ifndef IMAGE_IMAGE_H
 #define IMAGE_IMAGE_H
 
-#include <iostream>
-
 namespace image
 {
 
@@ -83,44 +81,37 @@ public:
             
                 for (uint32_t y = 0; y < newHeight; ++y)
                 {
-                    double gy = (double(y) / double(newHeight)) * double(height);
-                
+                    const float gy = (float(y) / newHeight) * height - 0.5f;
+                    const float fy = gy - uint32_t(gy);
+                    const float fy1 = 1.0f - fy;
+                    const uint32_t gyi = uint32_t(gy) * stride;
+                    
                     for (uint32_t x = 0; x < newWidth; ++x)
                     {
-                        double gx = (double(x) / double(newWidth)) * double(width);
+                        const float gx = (float(x) / newWidth) * width - 0.5f;
+                        const float fx = gx - uint32_t(gx);
+                        const float fx1 = 1.0f - fx;
+                        const uint32_t gxi = uint32_t(gx) * planes;
                         
-                        const int gxi = int(gx);
-                        const int gyi = int(gy) * stride;
+                        const Pixel* p1 = reinterpret_cast<Pixel*>(&data[gyi + gxi]);
+                        const Pixel* p2 = reinterpret_cast<Pixel*>(&data[gyi + gxi + planes]);
+                        const Pixel* p3 = reinterpret_cast<Pixel*>(&data[(gyi + stride) + gxi]);
+                        const Pixel* p4 = reinterpret_cast<Pixel*>(&data[(gyi + stride) + gxi + planes]);
                         
-                        const Pixel* c00 = reinterpret_cast<Pixel*>(&data[gyi + (gxi * planes)]);
-                        const Pixel* c10 = reinterpret_cast<Pixel*>(&data[gyi + (gxi * planes + planes)]);
-                        const Pixel* c01 = reinterpret_cast<Pixel*>(&data[(gyi + stride) + (gxi * planes)]);
-                        const Pixel* c11 = reinterpret_cast<Pixel*>(&data[(gyi + stride) + (gxi * planes + planes)]);
-                        
-                        const double tx = gx - double(gxi);
-                        const double ty = gy - double(gyi / stride);
-                        
-                        const double txi = 1.0 - tx;
-                        const double tyi = 1.0 - ty;
-                        
-                        Pixel a, b;
-                        a.r = (c00->r * txi + c10->r * tx) * tyi;
-                        a.g = (c00->g * txi + c10->g * tx) * tyi;
-                        a.b = (c00->b * txi + c10->b * tx) * tyi;
-                        b.r = (c01->r * txi + c11->r * tx) * ty;
-                        b.g = (c01->g * txi + c11->g * tx) * ty;
-                        b.b = (c01->b * txi + c11->b * tx) * ty;
-                        
+                        // Calculate the weights for each pixel
+                        const uint32_t w1 = fx1 * fy1 * 256.0f;
+                        const uint32_t w2 = fx  * fy1 * 256.0f;
+                        const uint32_t w3 = fx1 * fy  * 256.0f;
+                        const uint32_t w4 = fx  * fy  * 256.0f;
+
+                        // Calculate the weighted sum of pixels (for each color channel)
                         Pixel* result = reinterpret_cast<Pixel*>(&resizedData[(y * newWidth * planes) + (x * planes)]);
-                        result->r = a.r + b.r;
-                        result->g = a.g + b.g;
-                        result->b = a.b + b.b;
-                        
+                        result->r = (p1->r * w1 + p2->r * w2 + p3->r * w3 + p4->r * w4) >> 8;
+                        result->g = (p1->g * w1 + p2->g * w2 + p3->g * w3 + p4->g * w4) >> 8;
+                        result->b = (p1->b * w1 + p2->b * w2 + p3->b * w3 + p4->b * w4) >> 8;
                         if (planes == 4)
                         {
-                            a.a = (c00->a * txi + c10->a * tx) * tyi;
-                            b.a = (c01->a * txi + c11->a * tx) * ty;
-                            result->a = a.a + b.a;
+                            result->a = (p1->a * w1 + p2->a * w2 + p3->a * w3 + p4->a * w4) >> 8;
                         }
                     }
                 }

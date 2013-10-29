@@ -107,7 +107,7 @@ bool LoadStoreJpeg::isValidImageData(const std::vector<uint8_t>& data)
     }
     
     const uint32_t* pHeader = reinterpret_cast<const uint32_t*>(data.data());
-    return *pHeader == 0xE0FFD8FF;
+    return *pHeader == 0xE0FFD8FF || *pHeader == 0xE1FFD8FF;
 }
 
 std::unique_ptr<Image> LoadStoreJpeg::loadFromReader(utils::IReader& reader)
