@@ -18,6 +18,7 @@
 
 #include <stdexcept>
 #include <cassert>
+#include <exception>
 
 #include "utils/log.h"
 #include "utils/stringoperations.h"
