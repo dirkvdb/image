@@ -33,7 +33,18 @@ extern "C"
 namespace image
 {
 
-static void handleFatalError(j_common_ptr cinfo);
+static void handleFatalError(j_common_ptr cinfo)
+{
+    (*cinfo->err->output_message) (cinfo);
+    throw std::runtime_error("Fatal error decoding jpeg file");
+}
+
+static void outputMessage(j_common_ptr cinfo)
+{
+    char buffer[JMSG_LENGTH_MAX];
+    (*cinfo->err->format_message) (cinfo, buffer);
+    log::info(buffer);
+}
 
 struct BufferWriter
 {
@@ -55,11 +66,7 @@ struct LoadStoreJpegData
     {
         jpeg_std_error(&errorHandler);
         errorHandler.error_exit = handleFatalError;
-        errorHandler.output_message = [] (j_common_ptr cinfo) {
-            char buffer[JMSG_LENGTH_MAX];
-            (*cinfo->err->format_message) (cinfo, buffer);
-            log::info(buffer);
-        };
+        errorHandler.output_message = outputMessage;
     
         if (operation == Operation::Compress)
         {
@@ -243,12 +250,6 @@ static void jpegDestroyDestination(j_compress_ptr pCompressionInfo)
     size_t prevSize = pWriter->dataSink->size();
     pWriter->dataSink->resize(prevSize + datacount);
     memcpy(pWriter->dataSink->data() + prevSize, pWriter->dataBuffer, datacount);
-}
-
-static void handleFatalError(j_common_ptr cinfo)
-{
-    (*cinfo->err->output_message) (cinfo);
-    throw std::runtime_error("Fatal error decoding jpeg file");
 }
 
 }
