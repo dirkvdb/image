@@ -17,6 +17,10 @@
 #ifndef IMAGE_IMAGE_H
 #define IMAGE_IMAGE_H
 
+#include <vector>
+#include <stdexcept>
+#include <cinttypes>
+
 namespace image
 {
 
