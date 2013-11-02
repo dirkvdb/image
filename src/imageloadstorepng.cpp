@@ -176,7 +176,7 @@ std::unique_ptr<Image> LoadStorePng::loadFromMemory(const std::vector<uint8_t>& 
     return loadFromMemory(data.data(), data.size());
 }
 
-static long colorTypeFromColorPlanes(uint32_t colorPlanes)
+static int32_t colorTypeFromColorPlanes(uint32_t colorPlanes)
 {
     switch (colorPlanes)
     {
@@ -286,7 +286,7 @@ static void readImageProperties(PngPointers& png, Image& image)
 void writeDataCallback(png_structp png_ptr, png_bytep data, png_size_t length)
 {
     vector<uint8_t>& outputBuffer = *(reinterpret_cast<vector<uint8_t>* >(png_get_io_ptr(png_ptr)));
-    int prevBufSize = outputBuffer.size();
+    auto prevBufSize = outputBuffer.size();
     outputBuffer.resize(outputBuffer.size() + length);
     memcpy(&outputBuffer[prevBufSize], data, length);
 }
