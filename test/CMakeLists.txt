@@ -13,21 +13,19 @@ LINK_DIRECTORIES(
     ${IMAGE_LIBRARY_DIRS}
 )
 
+ADD_EXECUTABLE(imagetest EXCLUDE_FROM_ALL
+    gmock-gtest-all.cpp
+    main.cpp
+    imageloadingtest.cpp
+)
 
-IF (BUILD_TESTING)
-    ADD_EXECUTABLE(imagetest
-        gmock-gtest-all.cpp
-        main.cpp
-        imageloadingtest.cpp
-    )
+TARGET_LINK_LIBRARIES(imagetest
+    ${UTILS_LIBRARIES}
+    ${IMAGE_LIBRARIES}
+)
 
-    TARGET_LINK_LIBRARIES(imagetest
-        ${UTILS_LIBRARIES}
-        ${IMAGE_LIBRARIES}
-    )
+SET(IMAGE_TEST_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/imagetestconfig.h.in ${CMAKE_BINARY_DIR}/imagetestconfig.h)
 
-    SET(IMAGE_TEST_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data)
-    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/imagetestconfig.h.in ${CMAKE_BINARY_DIR}/imagetestconfig.h)
-
-    ADD_TEST(ImageTests imagetest) 
-ENDIF (BUILD_TESTING)
+ADD_TEST(ImageTests imagetest) 
+ADD_DEPENDENCIES(check imagetest)
