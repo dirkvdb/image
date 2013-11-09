@@ -48,10 +48,10 @@ static std::unique_ptr<Image> loadImage(utils::IReader& reader)
 }
 
 template <typename LoaderType>
-static std::unique_ptr<Image> loadImageFromMemory(const std::vector<uint8_t>& data)
+static std::unique_ptr<Image> loadImageFromMemory(const uint8_t* pData, uint64_t dataSize)
 {
     LoaderType loader;
-    return loader.loadFromMemory(data);
+    return loader.loadFromMemory(pData, dataSize);
 }
 
 static Type detectImageTypeFromUri(const std::string& uri)
@@ -139,21 +139,26 @@ std::unique_ptr<Image> Factory::createFromUri(const std::string& uri, Type image
 
 std::unique_ptr<Image> Factory::createFromData(const std::vector<uint8_t>& data)
 {
+    return createFromData(data.data(), data.size());
+}
+
+std::unique_ptr<Image> Factory::createFromData(const uint8_t* pData, uint64_t dataSize)
+{
     // try to detect the image type from the provided data
     
 #ifdef HAVE_JPEG
     LoadStoreJpeg loadStoreJpeg;
-    if (loadStoreJpeg.isValidImageData(data))
+    if (loadStoreJpeg.isValidImageData(pData, dataSize))
     {
-        return loadStoreJpeg.loadFromMemory(data);
+        return loadStoreJpeg.loadFromMemory(pData, dataSize);
     }
 #endif
 
 #ifdef HAVE_PNG
     LoadStorePng loadStorePng;
-    if (loadStorePng.isValidImageData(data))
+    if (loadStorePng.isValidImageData(pData, dataSize))
     {
-        return loadStorePng.loadFromMemory(data);
+        return loadStorePng.loadFromMemory(pData, dataSize);
     }
 #endif
 
@@ -162,17 +167,22 @@ std::unique_ptr<Image> Factory::createFromData(const std::vector<uint8_t>& data)
 
 std::unique_ptr<Image> Factory::createFromData(const std::vector<uint8_t>& data, Type imageType)
 {
+    return createFromData(data.data(), data.size());
+}
+
+std::unique_ptr<Image> Factory::createFromData(const uint8_t* pData, uint64_t dataSize, Type imageType)
+{
     switch (imageType)
     {
     case Type::Jpeg:
 #ifdef HAVE_JPEG
-        return loadImageFromMemory<LoadStoreJpeg>(data);
+        return loadImageFromMemory<LoadStoreJpeg>(pData, dataSize);
 #else
         throw std::runtime_error("Library not compiled with jpeg support");
 #endif
     case Type::Png:
 #ifdef HAVE_PNG
-        return loadImageFromMemory<LoadStorePng>(data);
+        return loadImageFromMemory<LoadStorePng>(pData, dataSize);
 #else
         throw std::runtime_error("Library not compiled with png support");
 #endif

@@ -108,12 +108,17 @@ LoadStoreJpeg::~LoadStoreJpeg() = default;
 
 bool LoadStoreJpeg::isValidImageData(const std::vector<uint8_t>& data)
 {
-    if (data.size() < 4)
+    return isValidImageData(data.data(), data.size());
+}
+
+bool LoadStoreJpeg::isValidImageData(const uint8_t* pData, uint64_t dataSize)
+{
+    if (dataSize < 4)
     {
         return false;
     }
     
-    const uint32_t* pHeader = reinterpret_cast<const uint32_t*>(data.data());
+    const uint32_t* pHeader = reinterpret_cast<const uint32_t*>(pData);
     return *pHeader == 0xE0FFD8FF || *pHeader == 0xE1FFD8FF;
 }
 

@@ -104,12 +104,17 @@ LoadStorePng::~LoadStorePng() = default;
 
 bool LoadStorePng::isValidImageData(const std::vector<uint8_t>& data)
 {
-    if (data.size() < 8)
+    return isValidImageData(data.data(), data.size());
+}
+
+bool LoadStorePng::isValidImageData(const uint8_t* pData, uint64_t dataSize)
+{
+    if (dataSize < 8)
     {
         return false;
     }
     
-    return png_check_sig(data.data(), PngSignatureLength) == true;
+    return png_check_sig(pData, PngSignatureLength) == true;
 }
 
 std::unique_ptr<Image> LoadStorePng::loadFromReader(utils::IReader& reader)

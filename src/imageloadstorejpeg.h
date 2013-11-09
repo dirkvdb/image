@@ -37,6 +37,7 @@ public:
     LoadStoreJpeg& operator=(const LoadStoreJpeg&) = delete;
     
     virtual bool isValidImageData(const std::vector<uint8_t>& data) override;
+    virtual bool isValidImageData(const uint8_t* pData, uint64_t dataSize) override;
 
     virtual std::unique_ptr<Image> loadFromReader(utils::IReader& reader) override;
     virtual std::unique_ptr<Image> loadFromMemory(const uint8_t* pData, uint64_t dataSize) override;

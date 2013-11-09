@@ -42,7 +42,9 @@ public:
     static std::unique_ptr<Image> createFromUri(const std::string& uri, Type imageType);
     
     static std::unique_ptr<Image> createFromData(const std::vector<uint8_t>& data);
+    static std::unique_ptr<Image> createFromData(const uint8_t* pData, uint64_t dataSize);
     static std::unique_ptr<Image> createFromData(const std::vector<uint8_t>& data, Type imageType);
+    static std::unique_ptr<Image> createFromData(const uint8_t* pData, uint64_t dataSize, Type imageType);
 };
 
 }
