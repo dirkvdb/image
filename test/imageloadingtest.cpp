@@ -37,6 +37,7 @@ static const std::string g_jpegTestData = IMAGE_TEST_DATA_DIR "/frog.jpg";
 static const std::string g_jpegSmallTestData = IMAGE_TEST_DATA_DIR "/frogsmall.jpg";
 static const std::string g_pngTestData = IMAGE_TEST_DATA_DIR "/frog.png";
 static const std::string g_corruptData = IMAGE_TEST_DATA_DIR "/corrupt.jpg";
+static const std::string g_cmykData = IMAGE_TEST_DATA_DIR "/cmyk.jpg";
 
 static const std::string g_testJpegFile = "imageloadingtestfile.jpg";
 static const std::string g_testPngFile = "imageloadingtestfile.png";
@@ -103,6 +104,14 @@ TEST_F(ImageLoadingTest, loadPng)
 TEST_F(ImageLoadingTest, loadCorruptJpeg)
 {
     EXPECT_THROW(Factory::createFromUri(g_corruptData), std::runtime_error);
+}
+
+TEST_F(ImageLoadingTest, loadCMYKJpeg)
+{
+    auto image = Factory::createFromUri(g_cmykData);
+    
+    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
+    jpegStore->storeToFile(*image, "CMYKSource" + g_testJpegFile);
 }
 
 TEST_F(ImageLoadingTest, resizeNeirestNeightborReduction)
