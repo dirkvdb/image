@@ -207,8 +207,12 @@ std::vector<uint8_t> LoadStorePng::storeToMemory(const Image& image)
 
     png_set_write_fn(png, reinterpret_cast<png_voidp>(&pngData), writeDataCallback, nullptr);
 
+#if (PNG_LIBPNG_VER < 10400 || PNG_LIBPNG_VER >= 10500)
     if (setjmp(png_jmpbuf(png)))
-	{
+#else
+    if (setjmp(static_cast<png_structp>(png)->jmpbuf))
+#endif
+    {
 		throw logic_error("Writing png file failed");
 	}
 	
