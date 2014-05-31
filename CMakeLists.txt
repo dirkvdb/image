@@ -1,6 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 ENABLE_TESTING()
 
+OPTION(STANDALONE "Not used as a submodule of another project" OFF)
+
 FIND_PACKAGE(JPEG)
 IF (JPEG_FOUND)
     OPTION(HAVE_JPEG "Jpeg support" ON)
