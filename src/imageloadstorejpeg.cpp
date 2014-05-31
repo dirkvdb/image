@@ -146,7 +146,7 @@ std::unique_ptr<Image> LoadStoreJpeg::loadFromMemory(const uint8_t* pData, uint6
 	image->width        = decomp.output_width;
 	image->height       = decomp.output_height;
 	image->bitDepth     = decomp.data_precision;
-    image->colorPlanes  = decomp.output_components;
+    image->colorPlanes  = 3; // output color space is always RGB
     image->data.resize(image->width * image->height * image->colorPlanes);
  
 	// Now that you have the decompressor entirely configured, it's time
@@ -162,13 +162,40 @@ std::unique_ptr<Image> LoadStoreJpeg::loadFromMemory(const uint8_t* pData, uint6
 	// scanline buffers. rec_outbuf_height is typically 1, 2, or 4, and 
 	// at the default high quality decompression setting is always 1.
 	
-    JSAMPROW rowPointer[1];
-    while (decomp.output_scanline < decomp.output_height)
+    if (decomp.out_color_space == JCS_CMYK)
     {
-		rowPointer[0] = (unsigned char*)(&image->data[decomp.output_scanline * decomp.image_width * decomp.output_components]);
- 		jpeg_read_scanlines(&decomp, rowPointer, 1);
- 
-	}
+        // we need to convert CMYK to rgb
+        std::vector<uint8_t> row(decomp.image_width * decomp.output_components);
+        JSAMPROW rowPointer[1];
+        rowPointer[0] = row.data();
+        while (decomp.output_scanline < decomp.output_height)
+        {
+            auto startOffset = decomp.output_scanline * decomp.image_width * image->colorPlanes;
+            jpeg_read_scanlines(&decomp, rowPointer, 1);
+            
+            // now convert the decoded row to rgb
+            for (uint32_t i = 0; i < decomp.image_width; ++i)
+            {
+                float c = row[i * decomp.output_components] / 255.f;
+                float m = row[i * decomp.output_components + 1] / 255.f;
+                float y = row[i * decomp.output_components + 2] / 255.f;
+                float k = row[i * decomp.output_components + 3] / 255.f;
+            
+                image->data[startOffset + (i * 3)    ] = static_cast<uint8_t>(255.f * c * k);
+                image->data[startOffset + (i * 3) + 1] = static_cast<uint8_t>(255.f * m * k);
+                image->data[startOffset + (i * 3) + 2] = static_cast<uint8_t>(255.f * y * k);
+            }
+        }
+    }
+    else
+    {
+        JSAMPROW rowPointer[1];
+        while (decomp.output_scanline < decomp.output_height)
+        {
+            rowPointer[0] = (unsigned char*)(&image->data[decomp.output_scanline * decomp.image_width * decomp.output_components]);
+            jpeg_read_scanlines(&decomp, rowPointer, 1);
+        }
+    }
  
 	jpeg_finish_decompress(&decomp);
  
