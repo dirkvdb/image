@@ -253,7 +253,7 @@ static void readImageProperties(PngPointers& png, Image& image)
 
     image.width     = width;
     image.height    = height;
-    image.bitDepth  = bitDepth;
+    image.bitDepth  = static_cast<uint32_t>(bitDepth);
     
     switch (colorType)
     {
