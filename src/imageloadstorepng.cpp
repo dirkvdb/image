@@ -207,8 +207,7 @@ std::vector<uint8_t> LoadStorePng::storeToMemory(const Image& image)
 
     png_set_write_fn(png, reinterpret_cast<png_voidp>(&pngData), writeDataCallback, nullptr);
 
-    png_structp pngPtr = png;
-    if (setjmp(png_jmpbuf(pngPtr)))
+    if (setjmp(png_jmpbuf(png)))
 	{
 		throw logic_error("Writing png file failed");
 	}
