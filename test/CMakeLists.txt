@@ -31,5 +31,5 @@ TARGET_LINK_LIBRARIES(imagetest
 SET(IMAGE_TEST_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/imagetestconfig.h.in ${CMAKE_BINARY_DIR}/imagetestconfig.h)
 
-ADD_TEST(ImageTests imagetest) 
+ADD_TEST(NAME ImageTests COMMAND imagetest) 
 ADD_DEPENDENCIES(check imagetest)
