@@ -113,13 +113,13 @@ bool LoadStoreJpeg::isValidImageData(const std::vector<uint8_t>& data)
 
 bool LoadStoreJpeg::isValidImageData(const uint8_t* pData, uint64_t dataSize)
 {
-    if (dataSize < 4)
+    if (dataSize < 2)
     {
         return false;
     }
     
-    const uint32_t* pHeader = reinterpret_cast<const uint32_t*>(pData);
-    return *pHeader == 0xE0FFD8FF || *pHeader == 0xE1FFD8FF;
+    const uint16_t* pHeader = reinterpret_cast<const uint16_t*>(pData);
+    return *pHeader == 0xD8FF;
 }
 
 std::unique_ptr<Image> LoadStoreJpeg::loadFromReader(utils::IReader& reader)
@@ -231,18 +231,44 @@ std::vector<uint8_t> LoadStoreJpeg::storeToMemory(const Image& image)
 
     comp.image_width         = image.width;
     comp.image_height        = image.height;
-    comp.input_components    = image.colorPlanes;
-    comp.in_color_space      = JCS_RGB;
+    comp.input_components    = image.colorPlanes == 4 ? 3 : image.colorPlanes; // drop the alpha channel
+    comp.in_color_space      = comp.input_components == 3 ? JCS_RGB : JCS_GRAYSCALE;
+
+    if (image.colorPlanes == 4)
+    {
+        log::warn("Dropping alpha channel when saving to jpeg");
+    }
 
     jpeg_set_defaults(&comp);
     jpeg_set_quality(&comp, quality, TRUE);
     jpeg_start_compress(&comp, TRUE);
 
     JSAMPROW rowPointer[1];
-    while (comp.next_scanline < comp.image_height)
+
+    if (image.colorPlanes == 4)
     {
-        rowPointer[0] = (unsigned char*)(&image.data[comp.next_scanline * comp.image_width * comp.input_components]);
-        (void) jpeg_write_scanlines(&comp, rowPointer, 1);
+        std::vector<uint8_t> row(image.width * image.height * 3);
+        while (comp.next_scanline < comp.image_height)
+        {
+            auto offset = comp.next_scanline * image.width * image.colorPlanes;
+            for (int i = 0; i < image.width; ++i)
+            {
+                row[i * comp.input_components]      = image.data[offset + (i*4)];
+                row[i * comp.input_components + 1]  = image.data[offset + (i*4) + 1];
+                row[i * comp.input_components + 2]  = image.data[offset + (i*4) + 2];
+            }
+
+            rowPointer[0] = row.data();
+            (void) jpeg_write_scanlines(&comp, rowPointer, 1);
+        }
+    }
+    else
+    {
+        while (comp.next_scanline < comp.image_height)
+        {
+            rowPointer[0] = (unsigned char*)(&image.data[comp.next_scanline * comp.image_width * comp.input_components]);
+            (void) jpeg_write_scanlines(&comp, rowPointer, 1);
+        }
     }
 
     jpeg_finish_compress(&comp);

@@ -38,6 +38,9 @@ static const std::string g_jpegSmallTestData = IMAGE_TEST_DATA_DIR "/frogsmall.j
 static const std::string g_pngTestData = IMAGE_TEST_DATA_DIR "/frog.png";
 static const std::string g_corruptData = IMAGE_TEST_DATA_DIR "/corrupt.jpg";
 static const std::string g_cmykData = IMAGE_TEST_DATA_DIR "/cmyk.jpg";
+static const std::string g_rgbaPng = IMAGE_TEST_DATA_DIR "/rgba.png";
+static const std::string g_colormapPng = IMAGE_TEST_DATA_DIR "/colormap.png";
+static const std::string g_strangeAppMarkerJpg = IMAGE_TEST_DATA_DIR "/appheader.jpg";
 
 static const std::string g_testJpegFile = "imageloadingtestfile.jpg";
 static const std::string g_testPngFile = "imageloadingtestfile.png";
@@ -112,6 +115,28 @@ TEST_F(ImageLoadingTest, loadCMYKJpeg)
     
     auto jpegStore = Factory::createLoadStore(Type::Jpeg);
     jpegStore->storeToFile(*image, "CMYKSource" + g_testJpegFile);
+}
+
+TEST_F(ImageLoadingTest, strangAppMarkerJpeg)
+{
+    auto data = fileops::readFile(g_strangeAppMarkerJpg);
+    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
+    EXPECT_TRUE(jpegStore->isValidImageData(data));
+}
+
+TEST_F(ImageLoadingTest, loadColorMapPng)
+{
+    auto image = Factory::createFromUri(g_colormapPng);
+    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
+    jpegStore->storeToFile(*image, "ColormapSource" + g_testJpegFile);
+}
+
+TEST_F(ImageLoadingTest, StoreRGBAPngToJpeg)
+{
+    auto image = Factory::createFromUri(g_rgbaPng);
+
+    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
+    jpegStore->storeToFile(*image, "RGBA" + g_testJpegFile);
 }
 
 TEST_F(ImageLoadingTest, resizeNeirestNeightborReduction)

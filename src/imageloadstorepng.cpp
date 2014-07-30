@@ -269,6 +269,10 @@ static void readImageProperties(PngPointers& png, Image& image)
     case PNG_COLOR_TYPE_RGB_ALPHA:
         image.colorPlanes = 4;
         break;
+    case PNG_COLOR_TYPE_PALETTE:
+        png_set_palette_to_rgb(png);
+        image.colorPlanes = 3;
+        break;
     default:
         throw std::runtime_error("Unsupported PNG color type encountered");
     }
