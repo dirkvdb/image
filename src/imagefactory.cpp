@@ -78,13 +78,13 @@ std::unique_ptr<ILoadStore> Factory::createLoadStore(Type imageType)
     {
     case Type::Jpeg:
 #ifdef HAVE_JPEG
-        return std::unique_ptr<ILoadStore>(new LoadStoreJpeg());
+        return std::make_unique<LoadStoreJpeg>();
 #else
         throw std::runtime_error("Library not compiled with jpeg support");
 #endif
     case Type::Png:
 #ifdef HAVE_PNG
-        return std::unique_ptr<ILoadStore>(new LoadStorePng());
+        return std::make_unique<LoadStorePng>();
 #else
         throw std::runtime_error("Library not compiled with png support");
 #endif

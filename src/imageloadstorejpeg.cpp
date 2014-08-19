@@ -129,7 +129,7 @@ std::unique_ptr<Image> LoadStoreJpeg::loadFromReader(utils::IReader& reader)
 
 std::unique_ptr<Image> LoadStoreJpeg::loadFromMemory(const uint8_t* pData, uint64_t dataSize)
 {
-    std::unique_ptr<Image> image(new Image());
+    auto image = std::make_unique<Image>();
     
     LoadStoreJpegData jpeg(LoadStoreJpegData::Operation::Decompress);
     

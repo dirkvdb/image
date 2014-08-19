@@ -132,7 +132,7 @@ std::unique_ptr<Image> LoadStorePng::loadFromReader(utils::IReader& reader)
 
     png_set_sig_bytes(png, PngSignatureLength);
     
-    std::unique_ptr<Image> image(new Image());
+    auto image = std::make_unique<Image>();
     
     png_set_read_fn(png, reinterpret_cast<png_voidp>(&reader), readDataFromReaderCallback);
     readImageProperties(png, *image);
@@ -155,7 +155,7 @@ std::unique_ptr<Image> LoadStorePng::loadFromMemory(const uint8_t* pData, uint64
 
     verifyPNGSignature(pData);
 
-    std::unique_ptr<Image> image(new Image());
+    auto image = std::make_unique<Image>();
     
     PngReadData readData;
     readData.dataSize = dataSize;
