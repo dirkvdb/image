@@ -251,7 +251,7 @@ std::vector<uint8_t> LoadStoreJpeg::storeToMemory(const Image& image)
         while (comp.next_scanline < comp.image_height)
         {
             auto offset = comp.next_scanline * image.width * image.colorPlanes;
-            for (int i = 0; i < image.width; ++i)
+            for (uint32_t i = 0; i < image.width; ++i)
             {
                 row[i * comp.input_components]      = image.data[offset + (i*4)];
                 row[i * comp.input_components + 1]  = image.data[offset + (i*4) + 1];
