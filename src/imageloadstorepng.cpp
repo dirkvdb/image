@@ -121,39 +121,39 @@ bool LoadStorePng::isValidImageData(const uint8_t* pData, uint64_t dataSize)
 
 std::unique_ptr<Image> LoadStorePng::loadFromReader(utils::IReader& reader)
 {
-    std::cout << "1" << std::endl;
     PngPointers png(PngPointers::Operation::Read);
-    std::cout << "2" << std::endl;
     uint8_t pngSignature[PngSignatureLength];
     auto read = reader.read(pngSignature, PngSignatureLength);
-    std::cout << "3" << std::endl;
     if (read != PngSignatureLength)
     {
         throw std::runtime_error("Failed to read png header");
     }
     
-    std::cout << "4" << std::endl;
     verifyPNGSignature(pngSignature);
-    std::cout << "5" << std::endl;
-
     png_set_sig_bytes(png, PngSignatureLength);
     
     auto image = std::make_unique<Image>();
     
     png_set_read_fn(png, reinterpret_cast<png_voidp>(&reader), readDataFromReaderCallback);
     readImageProperties(png, *image);
-    std::cout << "6" << std::endl;
+    std::cout << "6 " << image->colorPlanes << std::endl;
     
-    //std::vector<png_bytep> rowPointers(image->height, nullptr);
-    png_bytep* rowPointers = new png_bytep[image->height];
+    std::vector<png_bytep> rowPointers(image->height, nullptr);
+    //png_bytep* rowPointers = new png_bytep[image->height];
     for (size_t y = 0; y < image->height; ++y)
     {
         rowPointers[y] = (png_bytep)(&image->data[image->width * y * image->colorPlanes]);
+        std::cout << std::hex << rowPointers[y] << std::dec << std::endl;
     }
     
-    png_read_image(png, rowPointers);
+    png_read_image(png, rowPointers.data());
+    for (size_t y = 0; y < image->height; ++y)
+    {
+        std::cout << std::hex << *rowPointers[y] << std::dec << std::endl;
+    }
+
     png_read_end(png, nullptr);
-    delete[] rowPointers;
+    rowPointers.clear();
     std::cout << "7" << std::endl;
     return image;
 }
@@ -287,6 +287,7 @@ static void readImageProperties(PngPointers& png, Image& image)
     }
     
     // reserve the necessary memory
+    std::cout << width << " " << height << " " << bitDepth << " " << image.colorPlanes << " " << width * height * (bitDepth / 8) * image.colorPlanes << std::endl;
     image.data.resize(width * height * (bitDepth / 8) * image.colorPlanes);
 }
 
@@ -326,6 +327,7 @@ void readDataFromReaderCallback(png_structp png_ptr, png_bytep data, png_size_t 
 {
     utils::IReader& reader = *(reinterpret_cast<utils::IReader*>(png_get_io_ptr(png_ptr)));
     auto readBytes = reader.read(data, bytesToRead);
+    std::cout << readBytes << std::endl;
     if (readBytes != bytesToRead)
     {
         log::error("Error reading png data: invalid number of bytes read (requested = %d actual = %d)", bytesToRead, readBytes);
