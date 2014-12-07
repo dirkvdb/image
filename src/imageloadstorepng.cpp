@@ -24,6 +24,8 @@
 #include "utils/fileoperations.h"
 #include "image/image.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace utils;
 
@@ -119,16 +121,20 @@ bool LoadStorePng::isValidImageData(const uint8_t* pData, uint64_t dataSize)
 
 std::unique_ptr<Image> LoadStorePng::loadFromReader(utils::IReader& reader)
 {
+    std::cout << "1" << std::endl;
     PngPointers png(PngPointers::Operation::Read);
-
+    std::cout << "2" << std::endl;
     uint8_t pngSignature[PngSignatureLength];
     auto read = reader.read(pngSignature, PngSignatureLength);
+    std::cout << "3" << std::endl;
     if (read != PngSignatureLength)
     {
         throw std::runtime_error("Failed to read png header");
     }
     
+    std::cout << "4" << std::endl;
     verifyPNGSignature(pngSignature);
+    std::cout << "5" << std::endl;
 
     png_set_sig_bytes(png, PngSignatureLength);
     
@@ -136,6 +142,7 @@ std::unique_ptr<Image> LoadStorePng::loadFromReader(utils::IReader& reader)
     
     png_set_read_fn(png, reinterpret_cast<png_voidp>(&reader), readDataFromReaderCallback);
     readImageProperties(png, *image);
+    std::cout << "6" << std::endl;
     
     std::vector<png_bytep> rowPointers(image->height, nullptr);
     for (size_t y = 0; y < image->height; ++y)
@@ -145,7 +152,7 @@ std::unique_ptr<Image> LoadStorePng::loadFromReader(utils::IReader& reader)
     
     png_read_image(png, rowPointers.data());
     png_read_end(png, nullptr);
-    
+    std::cout << "7" << std::endl;
     return image;
 }
 
