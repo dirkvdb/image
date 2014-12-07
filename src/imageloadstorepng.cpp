@@ -144,14 +144,16 @@ std::unique_ptr<Image> LoadStorePng::loadFromReader(utils::IReader& reader)
     readImageProperties(png, *image);
     std::cout << "6" << std::endl;
     
-    std::vector<png_bytep> rowPointers(image->height);
+    //std::vector<png_bytep> rowPointers(image->height, nullptr);
+    png_bytep* rowPointers = new png_bytep[image->height];
     for (size_t y = 0; y < image->height; ++y)
     {
         rowPointers[y] = (png_bytep)(&image->data[image->width * y * image->colorPlanes]);
     }
     
-    png_read_image(png, rowPointers.data());
+    png_read_image(png, rowPointers);
     png_read_end(png, nullptr);
+    delete[] rowPointers;
     std::cout << "7" << std::endl;
     return image;
 }
