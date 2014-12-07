@@ -151,8 +151,8 @@ std::unique_ptr<Image> LoadStorePng::loadFromReader(utils::IReader& reader)
         rowPointers[y] = (png_bytep)(&image->data[image->width * y * image->colorPlanes]);
     }
     
-    png_read_image(png, rowPointers);
-    png_read_end(png, nullptr);
+    //png_read_image(png, rowPointers);
+    //png_read_end(png, nullptr);
     delete[] rowPointers;
     std::cout << "7" << std::endl;
     return image;
