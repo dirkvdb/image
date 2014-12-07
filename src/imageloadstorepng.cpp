@@ -144,7 +144,7 @@ std::unique_ptr<Image> LoadStorePng::loadFromReader(utils::IReader& reader)
     readImageProperties(png, *image);
     std::cout << "6" << std::endl;
     
-    std::vector<png_bytep> rowPointers(image->height, nullptr);
+    std::vector<png_bytep> rowPointers(image->height);
     for (size_t y = 0; y < image->height; ++y)
     {
         rowPointers[y] = (png_bytep)(&image->data[image->width * y * image->colorPlanes]);
