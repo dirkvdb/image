@@ -126,7 +126,7 @@ TEST_F(ImageLoadingTest, strangAppMarkerJpeg)
 
 TEST_F(ImageLoadingTest, loadColorMapPng)
 {
-    //auto image = Factory::createFromUri(g_colormapPng);
+    auto image = Factory::createFromUri(g_colormapPng);
     //auto jpegStore = Factory::createLoadStore(Type::Jpeg);
     //jpegStore->storeToFile(*image, "ColormapSource" + g_testJpegFile);
 }
