@@ -330,7 +330,7 @@ void readDataFromReaderCallback(png_structp png_ptr, png_bytep data, png_size_t 
     std::cout << readBytes << std::endl;
     if (readBytes != bytesToRead)
     {
-        log::error("Error reading png data: invalid number of bytes read (requested = %d actual = %d)", bytesToRead, readBytes);
+        log::error("Error reading png data: invalid number of bytes read (requested = {} actual = {})", bytesToRead, readBytes);
     }
 }
 
