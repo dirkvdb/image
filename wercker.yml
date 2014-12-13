@@ -12,7 +12,7 @@ build:
 
         - script:
             name: Install dependencies
-                sudo apt-get-intall libxdg-basedir-dev libpng-dev ligjpeg-dev
+                sudo apt-get-install libxdg-basedir-dev libpng-dev ligjpeg-dev
 
         - script:
             name: Compile Image
