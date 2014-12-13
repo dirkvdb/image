@@ -13,9 +13,10 @@ build:
         - script:
             name: Install dependencies
             code: |
+                sudo apt-get update
                 sudo apt-cache search jpeg
-                sudo apt-cache search libpng
-                sudo apt-get install libxdg-basedir-dev libpng-dev libjpeg-turbo-dev
+                sudo apt-cache search png
+                sudo apt-get install libxdg-basedir-dev libpng12-dev
 
         - script:
             name: Compile Image
