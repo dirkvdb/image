@@ -11,7 +11,11 @@ build:
                 echo "BUILD_DIR ${BUILD_DIR}"
 
         - script:
-            name: Compile Utils
+            name: Install dependencies
+                sudo apt-get-intall libxdg-basedir-dev libpng-dev ligjpeg-dev
+
+        - script:
+            name: Compile Image
             code: |
                 mkdir -p "${BUILD_DIR}"
                 cd "${SRC_DIR}"
