@@ -14,7 +14,7 @@ build:
             name: Install dependencies
             code: |
                 sudo apt-get update
-                sudo apt-get install libxdg-basedir-dev libjpeg-dev zlib-dev
+                sudo apt-get install libxdg-basedir-dev libjpeg-dev zlib1g-dev
                 wget ftp://ftp.simplesystems.org/pub/png//src/libpng15/libpng-1.5.20.tar.gz
                 tar xf libpng-1.5.20.tar.gz
                 cd libpng-1.5.20
