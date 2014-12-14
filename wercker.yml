@@ -27,8 +27,8 @@ build:
             code: |
                 mkdir -p "${BUILD_DIR}"
                 cd "${SRC_DIR}"
-                git clone https://github.com/dirkvdb/utils.git ../utils
                 cd ../utils
+                git clone https://github.com/dirkvdb/utils.git
                 git submodule update --init
                 git checkout develop
                 cd "${BUILD_DIR}"
