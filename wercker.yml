@@ -30,7 +30,7 @@ build:
                 cd ..
                 git clone https://github.com/dirkvdb/utils.git
                 cd utils
-                git submodule update --init
+                git submodule update --init --recursive
                 git checkout develop
                 cd "${BUILD_DIR}"
                 cmake -DSTANDALONE=1 -DCMAKE_BUILD_TYPE=Release "${SRC_DIR}"
