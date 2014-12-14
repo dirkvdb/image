@@ -13,13 +13,13 @@ build:
         - script:
             name: Install dependencies
             code: |
+                sudo apt-get install libxdg-basedir-dev libjpeg-dev zlib-dev
                 wget ftp://ftp.simplesystems.org/pub/png//src/libpng15/libpng-1.5.20.tar.gz
                 tar xf libpng-1.5.20.tar.gz
                 cd libpng-1.5.20
                 ./configure --disable-static
                 make
                 sudo make install
-                sudo apt-get install libxdg-basedir-dev libjpeg-dev
 
         - script:
             name: Compile Image
