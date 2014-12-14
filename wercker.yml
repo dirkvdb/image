@@ -13,11 +13,13 @@ build:
         - script:
             name: Install dependencies
             code: |
-                sudo apt-get update
-                sudo cat /etc/apt/sources.list
-                sudo apt-cache search jpeg
-                sudo apt-cache search png
-                sudo apt-get install libxdg-basedir-dev libpng12-dev libjpeg-dev
+                wget ftp://ftp.simplesystems.org/pub/png//src/libpng15/libpng-1.5.20.tar.gz
+                tar xf libpng-1.5.20.tar.gz
+                cd libpng-1.5.20
+                ./configure --disable-static
+                make
+                sudo make install
+                sudo apt-get install libxdg-basedir-dev libjpeg-dev
 
         - script:
             name: Compile Image
@@ -26,7 +28,7 @@ build:
                 cd "${SRC_DIR}"
                 git clone https://github.com/dirkvdb/utils.git ../utils
                 cd ../utils
-                git submodule update --init --recursive
+                git submodule update --init
                 git checkout develop
                 cd "${BUILD_DIR}"
                 cmake -DSTANDALONE=1 -DCMAKE_BUILD_TYPE=Release "${SRC_DIR}"
