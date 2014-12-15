@@ -21,6 +21,7 @@
 
 #include "utils/fileoperations.h"
 
+#include "imageconfig.h"
 #include "imagetestconfig.h"
 #include "image/imagefactory.h"
 #include "image/imageloadstoreinterface.h"
@@ -67,6 +68,7 @@ protected:
     }
 };
 
+#ifdef HAVE_JPEG
 TEST_F(ImageLoadingTest, dataValidation)
 {
     auto jpegData = fileops::readFile(g_jpegTestData);
@@ -93,17 +95,6 @@ TEST_F(ImageLoadingTest, loadJpeg)
     pngStore->storeToFile(*image, "JpegSource" + g_testPngFile);
 }
 
-TEST_F(ImageLoadingTest, loadPng)
-{
-    auto image = Factory::createFromUri(g_pngTestData);
-    
-    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
-    jpegStore->storeToFile(*image, "PngSource" + g_testJpegFile);
-    
-    auto pngStore = Factory::createLoadStore(Type::Png);
-    pngStore->storeToFile(*image, "PngSource" + g_testPngFile);
-}
-
 TEST_F(ImageLoadingTest, loadCorruptJpeg)
 {
     EXPECT_THROW(Factory::createFromUri(g_corruptData), std::runtime_error);
@@ -122,21 +113,6 @@ TEST_F(ImageLoadingTest, strangAppMarkerJpeg)
     auto data = fileops::readFile(g_strangeAppMarkerJpg);
     auto jpegStore = Factory::createLoadStore(Type::Jpeg);
     EXPECT_TRUE(jpegStore->isValidImageData(data));
-}
-
-TEST_F(ImageLoadingTest, loadColorMapPng)
-{
-    auto image = Factory::createFromUri(g_colormapPng);
-    //auto jpegStore = Factory::createLoadStore(Type::Jpeg);
-    //jpegStore->storeToFile(*image, "ColormapSource" + g_testJpegFile);
-}
-
-TEST_F(ImageLoadingTest, StoreRGBAPngToJpeg)
-{
-    auto image = Factory::createFromUri(g_rgbaPng);
-
-    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
-    jpegStore->storeToFile(*image, "RGBA" + g_testJpegFile);
 }
 
 TEST_F(ImageLoadingTest, resizeNeirestNeightborReduction)
@@ -182,6 +158,39 @@ TEST_F(ImageLoadingTest, resizeBilinearZoom)
     auto jpegStore = Factory::createLoadStore(Type::Jpeg);
     jpegStore->storeToFile(*image, "ResizedBilinearZoom" + g_testJpegFile);
 }
+#endif
+
+#ifdef HAVE_PNG
+TEST_F(ImageLoadingTest, loadPng)
+{
+    auto image = Factory::createFromUri(g_pngTestData);
+    
+    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
+    jpegStore->storeToFile(*image, "PngSource" + g_testJpegFile);
+    
+    auto pngStore = Factory::createLoadStore(Type::Png);
+    pngStore->storeToFile(*image, "PngSource" + g_testPngFile);
+}
+
+
+TEST_F(ImageLoadingTest, loadColorMapPng)
+{
+    auto image = Factory::createFromUri(g_colormapPng);
+    //auto jpegStore = Factory::createLoadStore(Type::Jpeg);
+    //jpegStore->storeToFile(*image, "ColormapSource" + g_testJpegFile);
+}
+
+#endif
+
+#if HAVE_JPEG and HAVE_PNG
+TEST_F(ImageLoadingTest, StoreRGBAPngToJpeg)
+{
+    auto image = Factory::createFromUri(g_rgbaPng);
+
+    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
+    jpegStore->storeToFile(*image, "RGBA" + g_testJpegFile);
+}
+#endif
 
 }
 }
