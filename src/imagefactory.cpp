@@ -26,6 +26,7 @@
 #include "utils/readerfactory.h"
 
 #include "imageconfig.h"
+#include "image/image.h"
 
 #ifdef HAVE_JPEG
     #include "imageloadstorejpeg.h"
