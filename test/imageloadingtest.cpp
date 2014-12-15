@@ -71,10 +71,11 @@ protected:
 #ifdef HAVE_JPEG
 TEST_F(ImageLoadingTest, dataValidationJpeg)
 {
+    auto jpegData = fileops::readFile(g_jpegTestData);
     auto pngData = fileops::readFile(g_pngTestData);
-    auto pngStore = Factory::createLoadStore(Type::Png);
+    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
     
-    EXPECT_TRUE(pngStore->isValidImageData(pngData));
+    EXPECT_TRUE(jpegStore->isValidImageData(jpegData));
     EXPECT_FALSE(jpegStore->isValidImageData(pngData));
 }
 
@@ -147,6 +148,7 @@ TEST_F(ImageLoadingTest, resizeBilinearZoom)
 TEST_F(ImageLoadingTest, dataValidationPng)
 {
     auto pngData = fileops::readFile(g_pngTestData);
+    auto jpegData = fileops::readFile(g_jpegTestData);
     auto pngStore = Factory::createLoadStore(Type::Png);
     
     EXPECT_TRUE(pngStore->isValidImageData(pngData));
