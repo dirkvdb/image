@@ -69,30 +69,13 @@ protected:
 };
 
 #ifdef HAVE_JPEG
-TEST_F(ImageLoadingTest, dataValidation)
+TEST_F(ImageLoadingTest, dataValidationJpeg)
 {
-    auto jpegData = fileops::readFile(g_jpegTestData);
     auto pngData = fileops::readFile(g_pngTestData);
-    
-    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
     auto pngStore = Factory::createLoadStore(Type::Png);
     
-    EXPECT_TRUE(jpegStore->isValidImageData(jpegData));
     EXPECT_TRUE(pngStore->isValidImageData(pngData));
-    
     EXPECT_FALSE(jpegStore->isValidImageData(pngData));
-    EXPECT_FALSE(pngStore->isValidImageData(jpegData));
-}
-
-TEST_F(ImageLoadingTest, loadJpeg)
-{
-    auto image = Factory::createFromUri(g_jpegTestData);
-    
-    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
-    jpegStore->storeToFile(*image, "JpegSource" + g_testJpegFile);
-    
-    auto pngStore = Factory::createLoadStore(Type::Png);
-    pngStore->storeToFile(*image, "JpegSource" + g_testPngFile);
 }
 
 TEST_F(ImageLoadingTest, loadCorruptJpeg)
@@ -161,6 +144,15 @@ TEST_F(ImageLoadingTest, resizeBilinearZoom)
 #endif
 
 #ifdef HAVE_PNG
+TEST_F(ImageLoadingTest, dataValidationPng)
+{
+    auto pngData = fileops::readFile(g_pngTestData);
+    auto pngStore = Factory::createLoadStore(Type::Png);
+    
+    EXPECT_TRUE(pngStore->isValidImageData(pngData));
+    EXPECT_FALSE(pngStore->isValidImageData(jpegData));
+}
+
 TEST_F(ImageLoadingTest, loadPng)
 {
     auto image = Factory::createFromUri(g_pngTestData);
@@ -183,6 +175,17 @@ TEST_F(ImageLoadingTest, loadColorMapPng)
 #endif
 
 #if HAVE_JPEG and HAVE_PNG
+TEST_F(ImageLoadingTest, loadStoreJpegToPng)
+{
+    auto image = Factory::createFromUri(g_jpegTestData);
+    
+    auto jpegStore = Factory::createLoadStore(Type::Jpeg);
+    jpegStore->storeToFile(*image, "JpegSource" + g_testJpegFile);
+    
+    auto pngStore = Factory::createLoadStore(Type::Png);
+    pngStore->storeToFile(*image, "JpegSource" + g_testPngFile);
+}
+
 TEST_F(ImageLoadingTest, StoreRGBAPngToJpeg)
 {
     auto image = Factory::createFromUri(g_rgbaPng);
