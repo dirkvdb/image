@@ -41,6 +41,13 @@ class Image
     };
 
 public:
+    Image() = default;
+    Image(Image&&) = default;
+    Image(const Image&) = delete;
+
+    Image& operator=(Image&&) = default;
+    Image& operator=(const Image&) = delete;
+
     void resize(uint32_t newWidth, uint32_t newHeight, ResizeAlgorithm algo)
     {
         if (data.empty())

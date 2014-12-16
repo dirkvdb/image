@@ -41,6 +41,9 @@ using namespace utils;
 namespace image
 {
 
+namespace
+{
+
 template <typename LoaderType>
 static std::unique_ptr<Image> loadImage(utils::IReader& reader)
 {
@@ -55,7 +58,7 @@ static std::unique_ptr<Image> loadImageFromMemory(const uint8_t* pData, uint64_t
     return loader.loadFromMemory(pData, dataSize);
 }
 
-static Type detectImageTypeFromUri(const std::string& uri)
+Type detectImageTypeFromUri(const std::string& uri)
 {
     std::string extension = fileops::getFileExtension(uri);
     stringops::lowercase(extension);
@@ -71,6 +74,8 @@ static Type detectImageTypeFromUri(const std::string& uri)
     }
 
     throw std::runtime_error("Failed to detect file type from extenstion");
+}
+
 }
 
 std::unique_ptr<ILoadStore> Factory::createLoadStore(Type imageType)
