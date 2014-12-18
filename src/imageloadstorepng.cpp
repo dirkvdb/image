@@ -24,8 +24,6 @@
 #include "utils/fileoperations.h"
 #include "image/image.h"
 
-#include <iostream>
-
 using namespace std;
 using namespace utils;
 
@@ -136,25 +134,15 @@ std::unique_ptr<Image> LoadStorePng::loadFromReader(utils::IReader& reader)
     
     png_set_read_fn(png, reinterpret_cast<png_voidp>(&reader), readDataFromReaderCallback);
     readImageProperties(png, *image);
-    std::cout << "6 " << image->colorPlanes << std::endl;
-    
+
     std::vector<png_bytep> rowPointers(image->height, nullptr);
-    //png_bytep* rowPointers = new png_bytep[image->height];
     for (size_t y = 0; y < image->height; ++y)
     {
         rowPointers[y] = (png_bytep)(&image->data[image->width * y * image->colorPlanes]);
-        std::cout << std::hex << rowPointers[y] << std::dec << std::endl;
     }
     
     png_read_image(png, rowPointers.data());
-    for (size_t y = 0; y < image->height; ++y)
-    {
-        std::cout << std::hex << *rowPointers[y] << std::dec << std::endl;
-    }
-
     png_read_end(png, nullptr);
-    rowPointers.clear();
-    std::cout << "7" << std::endl;
     return image;
 }
 
@@ -287,7 +275,6 @@ static void readImageProperties(PngPointers& png, Image& image)
     }
     
     // reserve the necessary memory
-    std::cout << width << " " << height << " " << bitDepth << " " << image.colorPlanes << " " << width * height * (bitDepth / 8) * image.colorPlanes << std::endl;
     image.data.resize(width * height * (bitDepth / 8) * image.colorPlanes);
 }
 
