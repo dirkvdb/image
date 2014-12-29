@@ -51,7 +51,7 @@ ADD_LIBRARY(image STATIC ${IMAGE_SRC_LIST})
 
 ADD_DEFINITIONS("-std=c++1y")
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    SET(CMAKE_CXX_FLAGS "-stdlib=libc++")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 ENDIF ()
 
 IF (UNIX OR APPLE)
