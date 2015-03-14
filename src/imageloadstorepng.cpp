@@ -56,7 +56,7 @@ public:
         {
             throw runtime_error("Failed to create png structure");
         }
-        
+
         infoPtr = png_create_info_struct(pngPtr);
         if (!infoPtr)
         {
@@ -64,11 +64,11 @@ public:
                 png_destroy_read_struct(&pngPtr, nullptr, nullptr);
             else
                 png_destroy_write_struct(&pngPtr, nullptr);
-            
+
             throw runtime_error("Failed to create png info structure");
         }
     }
-    
+
     ~PngPointers()
     {
         if (operation == Operation::Read)
@@ -76,12 +76,12 @@ public:
         else
             png_destroy_write_struct(&pngPtr, &infoPtr);
     }
-    
+
     operator png_structp() const
     {
         return pngPtr;
     }
-    
+
     operator png_infop() const
     {
         return infoPtr;
@@ -113,7 +113,7 @@ bool LoadStorePng::isValidImageData(const uint8_t* pData, uint64_t dataSize)
     {
         return false;
     }
-    
+
     return png_sig_cmp(pData, 0, PngSignatureLength) == 0;
 }
 
@@ -126,12 +126,12 @@ std::unique_ptr<Image> LoadStorePng::loadFromReader(utils::IReader& reader)
     {
         throw std::runtime_error("Failed to read png header");
     }
-    
+
     verifyPNGSignature(pngSignature);
     png_set_sig_bytes(png, PngSignatureLength);
-    
+
     auto image = std::make_unique<Image>();
-    
+
     png_set_read_fn(png, reinterpret_cast<png_voidp>(&reader), readDataFromReaderCallback);
     readImageProperties(png, *image);
 
@@ -140,7 +140,7 @@ std::unique_ptr<Image> LoadStorePng::loadFromReader(utils::IReader& reader)
     {
         rowPointers[y] = (png_bytep)(&image->data[image->width * y * image->colorPlanes]);
     }
-    
+
     png_read_image(png, rowPointers.data());
     png_read_end(png, nullptr);
     return image;
@@ -153,23 +153,23 @@ std::unique_ptr<Image> LoadStorePng::loadFromMemory(const uint8_t* pData, uint64
     verifyPNGSignature(pData);
 
     auto image = std::make_unique<Image>();
-    
+
     PngReadData readData;
     readData.dataSize = dataSize;
     readData.data = pData;
-    
+
     png_set_read_fn(png, reinterpret_cast<png_voidp>(&readData), readDataCallback);
     readImageProperties(png, *image);
-    
+
     std::vector<png_bytep> rowPointers(image->height, nullptr);
     for (size_t y = 0; y < image->height; ++y)
     {
         rowPointers[y] = (png_bytep)(&image->data[image->width * y * image->colorPlanes]);
     }
-    
+
     png_read_image(png, rowPointers.data());
     png_read_end(png, nullptr);
-    
+
     return image;
 }
 
@@ -208,21 +208,21 @@ std::vector<uint8_t> LoadStorePng::storeToMemory(const Image& image)
 	{
 		throw logic_error("Writing png file failed");
 	}
-	
+
 	png_set_IHDR(png, png, image.width, image.height, image.bitDepth, colorTypeFromColorPlanes(image.colorPlanes),
                  PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-    
+
     std::vector<png_bytep> rowPointers(image.height, nullptr);
     for (size_t y = 0; y < image.height; ++y)
     {
         rowPointers[y] = (png_bytep)(&image.data[image.width * y * image.colorPlanes]);
     }
-    
+
     png_set_rows(png, png, rowPointers.data());
     png_write_png(png, png, 0, nullptr);
     png_write_end(png, nullptr);
-    
+
     return pngData;
 }
 
@@ -237,12 +237,12 @@ void LoadStorePng::verifyPNGSignature(const uint8_t* pData)
 static void readImageProperties(PngPointers& png, Image& image)
 {
     png_read_info(png, png);
-    
+
     png_uint_32 width   = 0;
     png_uint_32 height  = 0;
     int bitDepth        = 0;
     int colorType       = -1;
-    
+
     if (1 != png_get_IHDR(png, png, &width, &height, &bitDepth, &colorType, nullptr, nullptr, nullptr))
     {
         throw std::runtime_error("Filed to read png header");
@@ -251,7 +251,7 @@ static void readImageProperties(PngPointers& png, Image& image)
     image.width     = width;
     image.height    = height;
     image.bitDepth  = static_cast<uint32_t>(bitDepth);
-    
+
     switch (colorType)
     {
     case PNG_COLOR_TYPE_GRAY:
@@ -273,7 +273,7 @@ static void readImageProperties(PngPointers& png, Image& image)
     default:
         throw std::runtime_error("Unsupported PNG color type encountered");
     }
-    
+
     // reserve the necessary memory
     image.data.resize(width * height * (bitDepth / 8) * image.colorPlanes);
 }
@@ -281,7 +281,7 @@ static void readImageProperties(PngPointers& png, Image& image)
 //void LoadStorePng::setText(const string& key, const string& value)
 //{
 //	png_text pngText;
-//		
+//
 //	pngText.compression = -1;
 //	pngText.key = const_cast<char*>(key.c_str());
 //	pngText.text = const_cast<char*>(value.c_str());
@@ -300,12 +300,12 @@ void writeDataCallback(png_structp png_ptr, png_bytep data, png_size_t length)
 void readDataCallback(png_structp png_ptr, png_bytep data, png_size_t bytesToRead)
 {
     PngReadData* pData = reinterpret_cast<PngReadData*>(png_get_io_ptr(png_ptr));
-    
+
     if (pData->offset + bytesToRead > pData->dataSize)
     {
         throw std::runtime_error("PNG reading failed, read outside of buffer");
     }
-    
+
     memcpy(data, pData->data + pData->offset, bytesToRead);
     pData->offset += bytesToRead;
 }

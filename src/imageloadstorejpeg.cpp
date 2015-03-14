@@ -42,7 +42,7 @@ static void handleFatalError(j_common_ptr cinfo)
 static void outputMessage(j_common_ptr cinfo)
 {
     char buffer[JMSG_LENGTH_MAX];
-    (*cinfo->err->format_message) (cinfo, buffer);
+    (*cinfo->err->format_message)(cinfo, buffer);
     log::info(buffer);
 }
 
@@ -67,7 +67,7 @@ struct LoadStoreJpegData
         jpeg_std_error(&errorHandler);
         errorHandler.error_exit = handleFatalError;
         errorHandler.output_message = outputMessage;
-    
+
         if (operation == Operation::Compress)
         {
             jpeg_create_compress(&compression);
@@ -101,7 +101,7 @@ static void jpegDestroyDestination(j_compress_ptr pCompressionInfo);
 
 LoadStoreJpeg::LoadStoreJpeg()
 {
-    
+
 }
 
 LoadStoreJpeg::~LoadStoreJpeg() = default;
@@ -117,7 +117,7 @@ bool LoadStoreJpeg::isValidImageData(const uint8_t* pData, uint64_t dataSize)
     {
         return false;
     }
-    
+
     const uint16_t* pHeader = reinterpret_cast<const uint16_t*>(pData);
     return *pHeader == 0xD8FF;
 }
@@ -130,38 +130,38 @@ std::unique_ptr<Image> LoadStoreJpeg::loadFromReader(utils::IReader& reader)
 std::unique_ptr<Image> LoadStoreJpeg::loadFromMemory(const uint8_t* pData, uint64_t dataSize)
 {
     auto image = std::make_unique<Image>();
-    
+
     LoadStoreJpegData jpeg(LoadStoreJpegData::Operation::Decompress);
-    
+
     auto& decomp = jpeg.decompression;
-    
+
     jpeg_mem_src(&decomp, const_cast<uint8_t*>(pData), dataSize);
     if (1 != jpeg_read_header(&decomp, TRUE))
     {
         throw std::runtime_error("Invalid JPEG data recieved");
     }
-    
+
     jpeg_start_decompress(&decomp);
-	
+
 	image->width        = decomp.output_width;
 	image->height       = decomp.output_height;
 	image->bitDepth     = decomp.data_precision;
     image->colorPlanes  = 3; // output color space is always RGB
     image->data.resize(image->width * image->height * image->colorPlanes);
- 
+
 	// Now that you have the decompressor entirely configured, it's time
 	// to read out all of the scanlines of the jpeg.
 	//
-	// By default, scanlines will come out in RGBRGBRGB...  order, 
+	// By default, scanlines will come out in RGBRGBRGB...  order,
 	// but this can be changed by setting cinfo.out_color_space
 	//
 	// jpeg_read_scanlines takes an array of buffers, one for each scanline.
 	// Even if you give it a complete set of buffers for the whole image,
-	// it will only ever decompress a few lines at a time. For best 
+	// it will only ever decompress a few lines at a time. For best
 	// performance, you should pass it an array with cinfo.rec_outbuf_height
-	// scanline buffers. rec_outbuf_height is typically 1, 2, or 4, and 
+	// scanline buffers. rec_outbuf_height is typically 1, 2, or 4, and
 	// at the default high quality decompression setting is always 1.
-	
+
     if (decomp.out_color_space == JCS_CMYK)
     {
         // we need to convert CMYK to rgb
@@ -172,7 +172,7 @@ std::unique_ptr<Image> LoadStoreJpeg::loadFromMemory(const uint8_t* pData, uint6
         {
             auto startOffset = decomp.output_scanline * decomp.image_width * image->colorPlanes;
             jpeg_read_scanlines(&decomp, rowPointer, 1);
-            
+
             // now convert the decoded row to rgb
             for (uint32_t i = 0; i < decomp.image_width; ++i)
             {
@@ -180,7 +180,7 @@ std::unique_ptr<Image> LoadStoreJpeg::loadFromMemory(const uint8_t* pData, uint6
                 float m = row[i * decomp.output_components + 1] / 255.f;
                 float y = row[i * decomp.output_components + 2] / 255.f;
                 float k = row[i * decomp.output_components + 3] / 255.f;
-            
+
                 image->data[startOffset + (i * 3)    ] = static_cast<uint8_t>(255.f * c * k);
                 image->data[startOffset + (i * 3) + 1] = static_cast<uint8_t>(255.f * m * k);
                 image->data[startOffset + (i * 3) + 2] = static_cast<uint8_t>(255.f * y * k);
@@ -196,9 +196,9 @@ std::unique_ptr<Image> LoadStoreJpeg::loadFromMemory(const uint8_t* pData, uint6
             jpeg_read_scanlines(&decomp, rowPointer, 1);
         }
     }
- 
+
 	jpeg_finish_decompress(&decomp);
- 
+
     return image;
 }
 
@@ -217,9 +217,9 @@ std::vector<uint8_t> LoadStoreJpeg::storeToMemory(const Image& image)
     constexpr int quality = 85;
 
     LoadStoreJpegData jpeg(LoadStoreJpegData::Operation::Compress);
-    
+
     std::vector<uint8_t> jpegData;
-    
+
     auto& comp = jpeg.compression;
     comp.dest = (jpeg_destination_mgr*)(comp.mem->alloc_small) ((j_common_ptr) &comp, JPOOL_PERMANENT, sizeof(BufferWriter));
 
