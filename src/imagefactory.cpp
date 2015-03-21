@@ -67,7 +67,7 @@ Type detectImageTypeFromUri(const std::string& uri)
     {
         return Type::Jpeg;
     }
-    
+
     if (extension == "png")
     {
         return Type::Png;
@@ -151,7 +151,7 @@ std::unique_ptr<Image> Factory::createFromData(const std::vector<uint8_t>& data)
 std::unique_ptr<Image> Factory::createFromData(const uint8_t* pData, uint64_t dataSize)
 {
     // try to detect the image type from the provided data
-    
+
 #ifdef HAVE_JPEG
     LoadStoreJpeg loadStoreJpeg;
     if (loadStoreJpeg.isValidImageData(pData, dataSize))
@@ -171,7 +171,7 @@ std::unique_ptr<Image> Factory::createFromData(const uint8_t* pData, uint64_t da
     throw std::runtime_error("Provided image data not supported");
 }
 
-std::unique_ptr<Image> Factory::createFromData(const std::vector<uint8_t>& data, Type imageType)
+std::unique_ptr<Image> Factory::createFromData(const std::vector<uint8_t>& data, Type /*imageType*/)
 {
     return createFromData(data.data(), data.size());
 }
@@ -201,4 +201,4 @@ std::unique_ptr<Image> Factory::createFromData(const uint8_t* pData, uint64_t da
 }
 
 }
-   
+
