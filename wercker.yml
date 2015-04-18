@@ -15,9 +15,9 @@ build:
             code: |
                 sudo apt-get update
                 sudo apt-get install libxdg-basedir-dev libjpeg-dev zlib1g-dev
-                wget ftp://ftp.simplesystems.org/pub/png//src/libpng15/libpng-1.5.21.tar.gz
-                tar xf libpng-1.5.21.tar.gz
-                cd libpng-1.5.21
+                wget ftp://ftp.simplesystems.org/pub/png//src/libpng15/libpng-1.5.22.tar.gz
+                tar xf libpng-1.5.22.tar.gz
+                cd libpng-1.5.22
                 ./configure --disable-static
                 make
                 sudo make install
