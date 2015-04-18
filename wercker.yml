@@ -25,15 +25,11 @@ build:
         - script:
             name: Compile Image
             code: |
-                mkdir -p "${BUILD_DIR}"
                 cd "${SRC_DIR}"
-                cd ..
-                git clone https://github.com/dirkvdb/utils.git
-                cd utils
-                git checkout develop
-                git submodule update --init --recursive
+                git clone -b develop --recursive --single-branch https://github.com/dirkvdb/utils.git ../utils
+                mkdir -p "${BUILD_DIR}"
                 cd "${BUILD_DIR}"
-                cmake -DSTANDALONE=1 -DCMAKE_BUILD_TYPE=Release "${SRC_DIR}"
+                cmake -DSTANDALONE=ON -DCMAKE_BUILD_TYPE=Release "${SRC_DIR}"
                 make -j8
                 make check -j8
 
