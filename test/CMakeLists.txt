@@ -1,5 +1,3 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-
 IF (STANDALONE)
 	ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/../../utils "${CMAKE_CURRENT_BINARY_DIR}/utils")
 ENDIF (STANDALONE)
@@ -16,7 +14,7 @@ LINK_DIRECTORIES(
     ${IMAGE_LIBRARY_DIRS}
 )
 
-ADD_EXECUTABLE(imagetest EXCLUDE_FROM_ALL
+ADD_EXECUTABLE(imagetest
     gmock-gtest-all.cpp
     main.cpp
     imageloadingtest.cpp
@@ -30,4 +28,3 @@ SET(IMAGE_TEST_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data)
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/imagetestconfig.h.in ${CMAKE_BINARY_DIR}/imagetestconfig.h)
 
 ADD_TEST(NAME ImageTests COMMAND imagetest)
-ADD_DEPENDENCIES(check imagetest)
