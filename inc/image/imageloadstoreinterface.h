@@ -30,7 +30,7 @@ namespace image
 class ILoadStore
 {
 public:
-    ~ILoadStore() {}
+    virtual ~ILoadStore() = default;
 
     // Check if the provided image data is supported by the loadstore
     virtual bool isValidImageData(const std::vector<uint8_t>& data) = 0;
@@ -39,7 +39,7 @@ public:
     virtual std::unique_ptr<Image> loadFromReader(utils::IReader& reader) = 0;
     virtual std::unique_ptr<Image> loadFromMemory(const uint8_t* pData, uint64_t dataSize) = 0;
     virtual std::unique_ptr<Image> loadFromMemory(const std::vector<uint8_t>& data) = 0;
-    
+
     virtual void storeToFile(const Image& image, const std::string& path) = 0;
     virtual std::vector<uint8_t> storeToMemory(const Image& image) = 0;
 };
