@@ -1,4 +1,4 @@
-box: dirkvdb/cxx14
+box: dirkvdb/arch:latest
 no-response-timeout: 10
 build:
     steps:
