@@ -24,4 +24,4 @@ build:
             name: Run Tests
             code: |
                 cd "${BUILD_DIR}"
-                CTEST_OUTPUT_ON_FAILURE=1 make test
+                CTEST_OUTPUT_ON_FAILURE=1 LC_CTYPE=en_US.UTF-8 make test
