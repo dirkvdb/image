@@ -14,7 +14,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include <array>
 #include <iostream>
@@ -68,7 +68,7 @@ protected:
     }
 };
 
-#ifdef HAVE_JPEG
+#if HAVE_JPEG
 TEST_F(ImageLoadingTest, dataValidationJpeg)
 {
     auto jpegData = fileops::readFile(g_jpegTestData);
@@ -144,7 +144,7 @@ TEST_F(ImageLoadingTest, resizeBilinearZoom)
 }
 #endif
 
-#ifdef HAVE_PNG
+#if HAVE_PNG
 TEST_F(ImageLoadingTest, dataValidationPng)
 {
     auto pngData = fileops::readFile(g_pngTestData);
@@ -155,6 +155,7 @@ TEST_F(ImageLoadingTest, dataValidationPng)
     EXPECT_FALSE(pngStore->isValidImageData(jpegData));
 }
 
+#if HAVE_JPEG
 TEST_F(ImageLoadingTest, loadPng)
 {
     auto image = Factory::createFromUri(g_pngTestData);
@@ -173,7 +174,7 @@ TEST_F(ImageLoadingTest, loadColorMapPng)
     auto jpegStore = Factory::createLoadStore(Type::Jpeg);
     jpegStore->storeToFile(*image, "ColormapSource" + g_testJpegFile);
 }
-
+#endif
 #endif
 
 #if HAVE_JPEG and HAVE_PNG
