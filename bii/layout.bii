@@ -1,7 +1,0 @@
- # Layout that redirect aux folders to your tmp/project folder
-cmake: $TMP/cmake
-lib: $TMP/lib
-build: $TMP/build
-deps: $TMP/deps
-auto-root-block: True
-root-block: dirkvdb/image
