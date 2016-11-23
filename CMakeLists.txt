@@ -1,68 +1,67 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-ENABLE_TESTING()
+cmake_minimum_required(VERSION 2.8)
+enable_testing()
 
-OPTION(STANDALONE "Not used as a submodule of another project" OFF)
-OPTION(ENABLE_TESTS "build unit tests" ON)
+option(STANDALONE "Not used as a submodule of another project" OFF)
+option(ENABLE_TESTS "build unit tests" ON)
 
-FIND_PACKAGE(JPEG)
-IF (JPEG_FOUND)
-    OPTION(HAVE_JPEG "Jpeg support" ON)
-ENDIF ()
+if (STANDALONE)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../utils "${CMAKE_CURRENT_BINARY_DIR}/utils")
 
-FIND_PACKAGE(PNG)
-IF (PNG_FOUND)
-    OPTION(HAVE_PNG "Png support" ON)
-ENDIF ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -Wall -Wextra")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O1")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND APPLE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    endif ()
+endif ()
 
-SET (IMAGE_INCLUDE_DIRS
-    "${CMAKE_CURRENT_SOURCE_DIR}/inc/"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../utils/inc/"
-)
-SET (IMAGE_SYS_INCLUDE_DIRS)
-SET (IMAGE_LIBRARY_DIRS
-    "${CMAKE_CURRENT_BINARY_DIR}"
-)
-SET (IMAGE_LIBRARIES
-    utils
-)
+find_package(JPEG)
+if (JPEG_FOUND)
+    option(HAVE_JPEG "Jpeg support" ON)
+endif ()
 
-SET (IMAGE_SRC_LIST
+find_package(PNG)
+if (PNG_FOUND)
+    option(HAVE_PNG "Png support" ON)
+endif ()
+
+set(IMAGE_SYS_INCLUDE_DIRS)
+
+set(IMAGE_SRC_LIST
     inc/image/image.h
     inc/image/imagefactory.h src/imagefactory.cpp
     inc/image/imageloadstoreinterface.h
 )
 
-IF (HAVE_JPEG)
-    LIST(APPEND IMAGE_SRC_LIST src/imageloadstorejpeg.h src/imageloadstorejpeg.cpp)
-    LIST(APPEND IMAGE_SYS_INCLUDE_DIRS ${JPEG_INCLUDE_DIR})
-    LIST(APPEND IMAGE_LIBRARY_DIRS ${JPEG_LIBRARY_DIRS})
-    LIST(APPEND IMAGE_LIBRARIES ${JPEG_LIBRARIES})
-ENDIF ()
+if (HAVE_JPEG)
+    list(APPEND IMAGE_SRC_LIST src/imageloadstorejpeg.h src/imageloadstorejpeg.cpp)
+    list(APPEND IMAGE_SYS_INCLUDE_DIRS ${JPEG_INCLUDE_DIR})
+    list(APPEND IMAGE_LIBRARY_DIRS ${JPEG_LIBRARY_DIRS})
+    list(APPEND IMAGE_LIBRARIES ${JPEG_LIBRARIES})
+endif ()
 
-IF (HAVE_PNG)
-    LIST(APPEND IMAGE_SRC_LIST src/imageloadstorepng.h src/imageloadstorepng.cpp)
-    LIST(APPEND IMAGE_SYS_INCLUDE_DIRS ${PNG_INCLUDE_DIR})
-    LIST(APPEND IMAGE_LIBRARY_DIRS ${PNG_LIBRARY_DIRS})
-    LIST(APPEND IMAGE_LIBRARIES ${PNG_LIBRARIES})
-ENDIF ()
+if (HAVE_PNG)
+    list(APPEND IMAGE_SRC_LIST src/imageloadstorepng.h src/imageloadstorepng.cpp)
+    list(APPEND IMAGE_SYS_INCLUDE_DIRS ${PNG_INCLUDE_DIR})
+    list(APPEND IMAGE_LIBRARY_DIRS ${PNG_LIBRARY_DIRS})
+    list(APPEND IMAGE_LIBRARIES ${PNG_LIBRARIES})
+endif ()
 
-INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR} ${IMAGE_INCLUDE_DIRS})
-INCLUDE_DIRECTORIES(SYSTEM ${IMAGE_SYS_INCLUDE_DIRS})
-ADD_LIBRARY(image STATIC ${IMAGE_SRC_LIST})
-TARGET_LINK_LIBRARIES(image utils ${IMAGE_LIBRARIES})
+add_library(image STATIC ${IMAGE_SRC_LIST})
 
-IF (STANDALONE)
-    ADD_DEFINITIONS("-std=c++1y")
-    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-    SET (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O1")
-    ADD_DEFINITIONS("-std=c++1y")
-    IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND APPLE)
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    ENDIF ()
-ENDIF ()
+target_include_directories(image PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inc>
+    $<INSTALL_INTERFACE:include>
+    PRIVATE ${CMAKE_BINARY_DIR}
+)
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/imageconfig.h.in ${CMAKE_BINARY_DIR}/imageconfig.h)
+target_include_directories(image SYSTEM PRIVATE
+    ${IMAGE_SYS_INCLUDE_DIRS}
+)
 
-IF (ENABLE_TESTS)
-    ADD_SUBDIRECTORY(test)
-ENDIF ()
+target_link_libraries(image utils ${IMAGE_LIBRARIES})
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/imageconfig.h.in ${CMAKE_BINARY_DIR}/imageconfig.h)
+
+if (ENABLE_TESTS)
+    add_subdirectory(test)
+endif ()

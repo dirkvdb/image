@@ -1,33 +1,18 @@
-IF (STANDALONE)
-	ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/../../utils "${CMAKE_CURRENT_BINARY_DIR}/utils")
-ENDIF (STANDALONE)
-
-GET_DIRECTORY_PROPERTY(UTILS_INCLUDE_DIRS	DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../utils" DEFINITION INCLUDE_DIRS)
-
-INCLUDE_DIRECTORIES(SYSTEM
+include_directories(SYSTEM
     ${CMAKE_CURRENT_SOURCE_DIR}/gmock
 )
 
-INCLUDE_DIRECTORIES(
-    ${UTILS_INCLUDE_DIRS}
-    ${IMAGE_INCLUDE_DIRS}
-)
-
-LINK_DIRECTORIES(
-    ${IMAGE_LIBRARY_DIRS}
-)
-
-ADD_EXECUTABLE(imagetest
+add_executable(imagetest
     gmock-gtest-all.cpp
     main.cpp
     imageloadingtest.cpp
 )
 
-TARGET_LINK_LIBRARIES(imagetest
+target_link_libraries(imagetest
     image
 )
 
-SET(IMAGE_TEST_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data)
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/imagetestconfig.h.in ${CMAKE_BINARY_DIR}/imagetestconfig.h)
+set(IMAGE_TEST_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/data)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/imagetestconfig.h.in ${CMAKE_BINARY_DIR}/imagetestconfig.h)
 
-ADD_TEST(NAME ImageTests COMMAND imagetest)
+add_test(NAME ImageTests COMMAND imagetest)
