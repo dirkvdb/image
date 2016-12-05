@@ -46,7 +46,7 @@ if (HAVE_PNG)
     list(APPEND IMAGE_LIBRARIES ${PNG_LIBRARIES})
 endif ()
 
-add_library(image STATIC ${IMAGE_SRC_LIST})
+add_library(image STATIC ${IMAGE_SRC_LIST} .travis.yml)
 
 target_include_directories(image PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inc>
