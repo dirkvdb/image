@@ -135,8 +135,8 @@ install:
   - sudo rm -f /usr/lib/x86_64-linux-gnu/libpng*
   - wget ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.26.tar.gz
   - tar xf libpng-1.6.26.tar.gz
-  - cd libpng-1.6.26 && ./configure --prefix=/usr --disable-dependency-tracking && make && sudo make install
-  - cd ..
+  - cd libpng-1.6.26 && ./configure --prefix=${DEPS_DIR}/local --disable-dependency-tracking && make && sudo make install
+  - cd ${TRAVIS_BUILD_DIR}
 
 before_script:
   - git clone -b develop --single-branch --recursive https://github.com/dirkvdb/utils.git ../utils
