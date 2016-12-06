@@ -128,9 +128,9 @@ before_install:
 
 install:
   - sudo rm -f /usr/lib/x86_64-linux-gnu/libpng*
-  - wget ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.26.tar.gz
-  - tar xf libpng-1.6.26.tar.gz
-  - cd libpng-1.6.26 && ./configure --prefix=${DEPS_DIR}/local --disable-dependency-tracking && make install
+  - wget ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.26.tar.xz
+  - tar xf libpng-1.6.26.tar.xz
+  - cd libpng-1.6.26 && cmake -DPNG_SHARED=OFF -DPNG_TESTS=OFF -DCMAKE_INSTALL_PREFIX=${DEPS_DIR}/local && make install
   - cd ${TRAVIS_BUILD_DIR}
 
 before_script:
