@@ -16,24 +16,24 @@
 
 #include "image/imagefactory.h"
 
-#include <stdexcept>
 #include <cassert>
 #include <exception>
+#include <stdexcept>
 
-#include "utils/log.h"
-#include "utils/stringoperations.h"
 #include "utils/fileoperations.h"
+#include "utils/log.h"
 #include "utils/readerfactory.h"
+#include "utils/stringoperations.h"
 
-#include "imageconfig.h"
 #include "image/image.h"
+#include "imageconfig.h"
 
 #if HAVE_JPEG
-    #include "imageloadstorejpeg.h"
+#include "imageloadstorejpeg.h"
 #endif
 
 #if HAVE_PNG
-    #include "imageloadstorepng.h"
+#include "imageloadstorepng.h"
 #endif
 
 using namespace utils;
@@ -60,8 +60,7 @@ static std::unique_ptr<Image> loadImageFromMemory(const uint8_t* pData, uint64_t
 
 Type detectImageTypeFromUri(const std::string& uri)
 {
-    std::string extension = fileops::getFileExtension(uri);
-    stringops::lowercase(extension);
+    std::string extension = str::lowercase(fileops::getFileExtension(uri));
 
     if (extension == "jpg" || extension == "jpeg")
     {
@@ -76,7 +75,7 @@ Type detectImageTypeFromUri(const std::string& uri)
     throw std::runtime_error("Failed to detect file type from extenstion");
 }
 
-}
+} // namespace
 
 std::unique_ptr<ILoadStore> Factory::createLoadStore(Type imageType)
 {
@@ -200,5 +199,4 @@ std::unique_ptr<Image> Factory::createFromData(const uint8_t* pData, uint64_t da
     }
 }
 
-}
-
+} // namespace image
