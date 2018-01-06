@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 enable_testing()
 
 option(STANDALONE "Not used as a submodule of another project" OFF)
@@ -7,8 +7,11 @@ option(ENABLE_TESTS "build unit tests" ON)
 if (STANDALONE)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../utils "${CMAKE_CURRENT_BINARY_DIR}/utils")
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -Wall -Wextra")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O1")
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND APPLE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     endif ()
